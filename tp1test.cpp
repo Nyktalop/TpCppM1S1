@@ -73,7 +73,7 @@ std::ostream& operator<<(std::ostream& out, const ExprToken& t) {
 }
 */
 
-std::vector<std::shared_ptr<ExprToken>> toRPN (std::vector<std::string> vec);
+std::vector<std::unique_ptr<ExprToken>> toRPN (std::vector<std::string> vec);
 std::vector<std::string> split (const std::string& s, const char delim);
 bool isNumber(std::string s);
 bool isOp(std::string s);
@@ -85,37 +85,37 @@ public:
   Expr(const char* str) : s{str} {};
 
   int eval() {
-    std::vector<std::shared_ptr<ExprToken>> tokens = toRPN(split(s, ' '));
-    std::stack<std::shared_ptr<ExprTokenNumber>> stack;
+    std::vector<std::unique_ptr<ExprToken>> tokens = toRPN(split(s, ' '));
+    std::stack<std::unique_ptr<ExprTokenNumber>> stack;
 
     for(auto t : tokens) {
       if(t->type()==NUMBER) {
-	stack.push(std::make_shared<ExprTokenNumber>(t->number())); // TODO ICI
+	stack.push(std::make_unique<ExprTokenNumber>(t->number())); // TODO ICI
       } else if (t->type()==OP) {
-	std::shared_ptr<ExprTokenNumber> b = std::static_pointer_cast<ExprTokenNumber>(stack.top());
+	std::unique_ptr<ExprTokenNumber> b = std::static_pointer_cast<ExprTokenNumber>(stack.top());
 	stack.pop();
-	std::shared_ptr<ExprTokenNumber> a = std::static_pointer_cast<ExprTokenNumber>(stack.top());
+	std::unique_ptr<ExprTokenNumber> a = std::static_pointer_cast<ExprTokenNumber>(stack.top());
 	stack.pop();
 
 	std::cout << b->number() << a->number() << std::endl;
 	
-	std::shared_ptr<ExprTokenOp> t2 = std::static_pointer_cast<ExprTokenOp>(t);
+	std::unique_ptr<ExprTokenOp> t2 = std::static_pointer_cast<ExprTokenOp>(t);
 	
 	switch(t2->op()) {
 	case '+' :
-	  stack.push(std::make_shared<ExprTokenNumber>(a->number()+b->number()));
+	  stack.push(std::make_unique<ExprTokenNumber>(a->number()+b->number()));
 	  break;
 
 	case '-' :
-	  stack.push(std::make_shared<ExprTokenNumber>(a->number()-b->number()));
+	  stack.push(std::make_unique<ExprTokenNumber>(a->number()-b->number()));
 	  break;
 
 	case '*' :
-	  stack.push(std::make_shared<ExprTokenNumber>(a->number()*b->number()));
+	  stack.push(std::make_unique<ExprTokenNumber>(a->number()*b->number()));
 	  break;
 
 	case '/' :
-	  stack.push(std::make_shared<ExprTokenNumber>(a->number()/b->number()));
+	  stack.push(std::make_unique<ExprTokenNumber>(a->number()/b->number()));
 	  break;
 	  
 	default :
@@ -154,16 +154,16 @@ bool isNumber(std::string s) {
   return !s.empty() && it == s.end();
 }
 
-std::vector<std::shared_ptr<ExprToken>> toRPN (std::vector<std::string> vec) {
-  std::vector<std::shared_ptr<ExprToken>> res;
-  std::stack<std::shared_ptr<ExprToken>> stack;
+std::vector<std::unique_ptr<ExprToken>> toRPN (std::vector<std::string> vec) {
+  std::vector<std::unique_ptr<ExprToken>> res;
+  std::stack<std::unique_ptr<ExprToken>> stack;
   
   for(const auto& t : vec) {
     if(isNumber(t)) {
-      res.push_back(std::make_shared<ExprTokenNumber>(stod(t)));
+      res.push_back(std::make_unique<ExprTokenNumber>(stod(t)));
 
     } else if (isOp(t)) {
-      std::shared_ptr<ExprTokenOp> token = std::make_shared<ExprTokenOp>(t[0]);
+      std::unique_ptr<ExprTokenOp> token = std::make_unique<ExprTokenOp>(t[0]);
       while(!stack.empty() && *token < *stack.top()) {
 	res.push_back(stack.top());
 	stack.pop();

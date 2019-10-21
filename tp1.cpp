@@ -89,7 +89,7 @@ public:
 
     for(const auto& t : tokens) {
       if(t.type()==NUMBER) {
-	//stack.push(t); // TODO ICI
+	    stack.push(t); // TODO ICI
       } else if (t.type()==OP) {
 	ExprTokenNumber b = stack.top();
 	stack.pop();
