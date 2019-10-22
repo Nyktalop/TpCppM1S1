@@ -134,7 +134,7 @@ private:
 
 		while(it != s.end()) {
 			//bypassing spaces
-			while(it != s.end() && *it == ' ' ) {++it;};
+			while(it != s.end() && std::isspace(*it)) {++it;};
 
 			//reading a number
 			while(it != s.end() && std::isdigit(*it)) {
@@ -145,7 +145,7 @@ private:
 			token = "";
 
 			//bypassing spaces
-			while(it != s.end() && *it == ' ' ) {++it;};
+			while(it != s.end() && std::isspace(*it)) {++it;};
 
 			//reading an op
 			if(it != s.end()) {
@@ -156,7 +156,7 @@ private:
 			}
 
 			//bypassing spaces
-			while(it != s.end() && *it == ' ' ) {++it;};
+			while(it != s.end() && std::isspace(*it)) {++it;};
 
 		}
 
