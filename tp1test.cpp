@@ -22,20 +22,21 @@ public:
   bool operator<(const ExprToken& t) {
     return false;
   }
+  
+  const virtual double number() = 0;
 
-  // double& number
-  const double number() const {return 0;}
-  // char& op
-  const char op() const {return 'o';}
+  const virtual char op() = 0;
 };
 
 class ExprTokenNumber : public ExprToken {
 private :
   double _number;
 public :
-  const double  number() const {return _number;}
+  const double number() override {return _number;}
 
-  ExprTokenNumber(const double& i) : ExprToken{NUMBER}, _number{i} {
+  const char op() override {return 'o';}
+  
+  ExprTokenNumber(const double i) : ExprToken{NUMBER}, _number{i} {
   }
   
 };
@@ -45,12 +46,14 @@ private :
   char _op;
   
 public :
-  const char  op() const {return _op;}
+  const char op() override {return _op;}
+
+  const double number() override {return 0;}
   
-  ExprTokenOp(const char& c) : ExprToken{OP}, _op{c} {
+  ExprTokenOp(const char c) : ExprToken{OP}, _op{c} {
   }
 
-  bool operator<(const ExprToken& t) {
+  bool operator<(ExprToken& t) {
     if(t.type() != OP)
       return false;
 
@@ -86,22 +89,18 @@ public:
 
   int eval() {
     std::vector<std::unique_ptr<ExprToken>> tokens = toRPN(split(s, ' '));
-    std::stack<std::unique_ptr<ExprTokenNumber>> stack;
+    std::stack<std::unique_ptr<ExprToken>> stack;
 
-    for(auto t : tokens) {
+    for(auto& t : tokens) {
       if(t->type()==NUMBER) {
-	stack.push(std::make_unique<ExprTokenNumber>(t->number())); // TODO ICI
+	stack.push(std::move(t)); // TODO ICI
       } else if (t->type()==OP) {
-	std::unique_ptr<ExprTokenNumber> b = std::static_pointer_cast<ExprTokenNumber>(stack.top());
+	std::unique_ptr<ExprToken> b = std::move(stack.top());
 	stack.pop();
-	std::unique_ptr<ExprTokenNumber> a = std::static_pointer_cast<ExprTokenNumber>(stack.top());
+	std::unique_ptr<ExprToken> a = std::move(stack.top());
 	stack.pop();
-
-	std::cout << b->number() << a->number() << std::endl;
 	
-	std::unique_ptr<ExprTokenOp> t2 = std::static_pointer_cast<ExprTokenOp>(t);
-	
-	switch(t2->op()) {
+	switch(t->op()) {
 	case '+' :
 	  stack.push(std::make_unique<ExprTokenNumber>(a->number()+b->number()));
 	  break;
@@ -165,10 +164,10 @@ std::vector<std::unique_ptr<ExprToken>> toRPN (std::vector<std::string> vec) {
     } else if (isOp(t)) {
       std::unique_ptr<ExprTokenOp> token = std::make_unique<ExprTokenOp>(t[0]);
       while(!stack.empty() && *token < *stack.top()) {
-	res.push_back(stack.top());
+	res.push_back(std::move(stack.top()));
 	stack.pop();
       }
-      stack.push(token);
+      stack.push(std::move(token));
       
     } else {
       std::cerr << "not a valid expression" << std::endl;
@@ -177,7 +176,7 @@ std::vector<std::unique_ptr<ExprToken>> toRPN (std::vector<std::string> vec) {
   }
 
   while(!stack.empty()) {
-    res.push_back(stack.top());
+    res.push_back(std::move(stack.top()));
     stack.pop();
   }
   
@@ -204,8 +203,11 @@ int main() {
 
   Expr exp = Expr("17 - 24 / 4 * 3 + 2");
   
-  exp.print();
+  //exp.print();
   std::cout << exp.eval() << std::endl;
+
+  std::cout << exp.eval() << std::endl;
+
   
   return 0;
 }
