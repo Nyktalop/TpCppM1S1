@@ -10,6 +10,7 @@ enum TokenType {
   OP
 };
 
+
 class ExprToken {
 private:
   TokenType _type;
@@ -27,6 +28,8 @@ public:
 
   const virtual char op() = 0;
 };
+
+using vecToken = std::vector<std::unique_ptr<ExprToken>>; 
 
 class ExprTokenNumber : public ExprToken {
 private :
@@ -76,7 +79,7 @@ std::ostream& operator<<(std::ostream& out, const ExprToken& t) {
 }
 */
 
-std::vector<std::unique_ptr<ExprToken>> toRPN (std::vector<std::string> vec);
+vecToken toRPN (std::vector<std::string> vec);
 std::vector<std::string> split (const std::string& s, const char delim);
 bool isNumber(std::string s);
 bool isOp(std::string s);
@@ -88,7 +91,7 @@ public:
   Expr(const char* str) : s{str} {};
 
   int eval() {
-    std::vector<std::unique_ptr<ExprToken>> tokens = toRPN(split(s, ' '));
+    vecToken tokens = toRPN(split(s, ' '));
     std::stack<std::unique_ptr<ExprToken>> stack;
 
     for(auto& t : tokens) {
@@ -128,7 +131,17 @@ public:
   }
     
   void print() {
-    //std::cout << toRPN(split(s, ' ')) << std::endl;
+    for(auto& t : toRPN(split(s, ' ')) ) {
+      if (t->type()==OP) {
+	std::cout << t->op();
+      } else if (t->type()==NUMBER) {
+	std::cout << t->number();
+      } else if (t->type()==NONE) {
+	std::cout << "NONE";
+      }
+      std::cout << " ";
+    }
+    std::cout << std::endl;
   }
 
 private:
@@ -153,8 +166,8 @@ bool isNumber(std::string s) {
   return !s.empty() && it == s.end();
 }
 
-std::vector<std::unique_ptr<ExprToken>> toRPN (std::vector<std::string> vec) {
-  std::vector<std::unique_ptr<ExprToken>> res;
+vecToken toRPN (std::vector<std::string> vec) {
+  vecToken res;
   std::stack<std::unique_ptr<ExprToken>> stack;
   
   for(const auto& t : vec) {
@@ -203,9 +216,14 @@ int main() {
 
   Expr exp = Expr("17 - 24 / 4 * 3 + 2");
   
-  //exp.print();
-  std::cout << exp.eval() << std::endl;
+  exp.print();
 
+  std::cout << exp.eval() << std::endl;
+  
+  exp = Expr("1 + 1 + 1 - 1 * 2");
+
+  exp.print();
+  
   std::cout << exp.eval() << std::endl;
 
   
