@@ -70,7 +70,7 @@ public:
 	explicit Expr(const char *str) : s{str} {};
 
 	double eval() {
-		vecToken tokens = toRPN(split(s, ' '));
+		vecToken tokens = toRPN(split(s));
 		std::stack<std::unique_ptr<ExprToken>> stack;
 
 		for (auto &t : tokens) {
@@ -109,7 +109,7 @@ public:
 	}
 
 	void print() {
-		for (auto &t : toRPN(split(s, ' '))) {
+		for (auto &t : toRPN(split(s))) {
 			if (t->type() == OP) {
 				std::cout << t->op();
 			} else if (t->type() == NUMBER) {
@@ -126,14 +126,41 @@ private:
 
 	std::string s;
 
-	std::vector<std::string> split(const std::string &s, const char delim) {
-		std::stringstream stream = std::stringstream(s);
+	std::vector<std::string> split(const std::string &s) {
 		std::string token;
 		std::vector<std::string> vector;
 
-		while (std::getline(stream, token, delim)) {
+		std::string::const_iterator it = s.begin();
+
+		while(it != s.end()) {
+			//bypassing spaces
+			while(it != s.end() && *it == ' ' ) {++it;};
+
+			//reading a number
+			while(it != s.end() && std::isdigit(*it)) {
+				token += *it;
+				++it;
+			}
 			vector.push_back(token);
+			token = "";
+
+			//bypassing spaces
+			while(it != s.end() && *it == ' ' ) {++it;};
+
+			//reading an op
+			if(it != s.end()) {
+				token += *it;
+				vector.push_back(token);
+				token = "";
+				++it;
+			}
+
+			//bypassing spaces
+			while(it != s.end() && *it == ' ' ) {++it;};
+
 		}
+
+
 		return vector;
 	}
 
@@ -191,13 +218,13 @@ private:
 
 int main() {
 
-	Expr exp = Expr("17 - 24 / 4 * 3 + 2");
+	Expr exp = Expr("   17 - 24 /    4 *  3 +   2  ");
 
 	exp.print();
 
 	std::cout << exp.eval() << std::endl;
 
-	exp = Expr("1 + 1 + 1 - 1 * 2");
+	exp = Expr("17-24/4*3+2");
 
 	exp.print();
 
