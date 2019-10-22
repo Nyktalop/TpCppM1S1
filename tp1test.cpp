@@ -134,7 +134,7 @@ private:
 
 		while(it != s.end()) {
 			//bypassing spaces
-			while(it != s.end() && std::isspace(*it)) {++it;};
+			for(;it != s.end() && std::isspace(*it);++it);
 
 			//reading a number
 			while(it != s.end() && std::isdigit(*it)) {
@@ -145,7 +145,7 @@ private:
 			token = "";
 
 			//bypassing spaces
-			while(it != s.end() && std::isspace(*it)) {++it;};
+			for(;it != s.end() && std::isspace(*it);++it);
 
 			//reading an op
 			if(it != s.end()) {
@@ -154,10 +154,6 @@ private:
 				token = "";
 				++it;
 			}
-
-			//bypassing spaces
-			while(it != s.end() && std::isspace(*it)) {++it;};
-
 		}
 
 
@@ -218,7 +214,7 @@ private:
 
 int main() {
 
-	Expr exp = Expr("   17 - 24 /    4 *  3 +   2  ");
+	Expr exp = Expr("   17 - 24 /    4 *  3 +   2   ");
 
 	exp.print();
 
