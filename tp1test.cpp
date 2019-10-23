@@ -68,14 +68,18 @@ public:
 	explicit Expr(const char *str) : s{str} {};
 
 	explicit Expr(std::string &str) : s{str} {};
-	
+
 	double eval() {
 		vecToken tokens = toRPN(split(s));
+		if (tokens.empty()) {
+			return 0;
+		}
+
 		std::stack<std::unique_ptr<ExprToken>> stack;
 
 		for (auto &t : tokens) {
 			if (t->type() == NUMBER) {
-				stack.push(std::move(t)); // TODO ICI
+				stack.push(std::move(t));
 			} else if (t->type() == OP) {
 				std::unique_ptr<ExprToken> b = std::move(stack.top());
 				stack.pop();
@@ -132,23 +136,26 @@ private:
 
 		std::string::const_iterator it = s.begin();
 
-		while(it != s.end()) {
+		while (it != s.end()) {
 			//bypassing spaces
-			for(;it != s.end() && std::isspace(*it);++it);
+			for (; it != s.end() && std::isspace(*it); ++it);
 
 			//reading a number
-			while(it != s.end() && std::isdigit(*it)) {
+			bool point{true};
+			while (it != s.end() && (std::isdigit(*it) || (*it == '.' && point))) {
+				if (*it == '.') point = false;
 				token += *it;
 				++it;
 			}
+			std::cout << "number read : " << token << std::endl;
 			vector.push_back(token);
 			token = "";
 
 			//bypassing spaces
-			for(;it != s.end() && std::isspace(*it);++it);
+			for (; it != s.end() && std::isspace(*it); ++it);
 
 			//reading an op
-			if(it != s.end()) {
+			if (it != s.end()) {
 				token += *it;
 				vector.push_back(token);
 				token = "";
@@ -169,9 +176,12 @@ private:
 
 	bool isNumber(const std::string &s) {
 		std::string::const_iterator it = s.begin();
-
-		while (it != s.end() && std::isdigit(*it))
-			++it;
+		bool point{true};
+		while (it != s.end() && (std::isdigit(*it) || (*it == '.' && point))) {
+			if (*it++ == '.') {
+				point = false;
+			}
+		}
 
 		return !s.empty() && it == s.end();
 	}
@@ -194,7 +204,8 @@ private:
 
 			} else {
 				std::cerr << "not a valid expression" << std::endl;
-				exit(255);
+				vecToken v;
+				return v;
 			}
 		}
 
@@ -211,21 +222,22 @@ private:
 
 class Program {
 private:
-	std::istream& _in;
+	std::istream &_in;
 
 public:
-	Program(std::istream& in) : _in{in} {};
+	explicit Program(std::istream &in) : _in{in} {};
 
 	void exec() const {
 		std::string s;
-		while(std::getline(_in,s)) {
-			if (s[s.find_last_not_of(" \t\r")] == ';') {
-			} else {
-				Expr e{s};
-				std::cout << e.eval() << std::endl;
-		       }
+		while (std::getline(_in, s) && s != "q" && s != "quit") {
+			if (!s.empty()) {
+				if (s[s.find_last_not_of(" \t\r")] == ';') {
+				} else {
+					Expr e{s};
+					std::cout << e.eval() << std::endl;
+				}
+			}
 		}
-		
 	}
 };
 
