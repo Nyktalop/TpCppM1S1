@@ -62,13 +62,13 @@ public :
 	}
 };
 
-std::vector<std::string> split(const std::string &s, char delim);
-
 class Expr {
 public:
 
 	explicit Expr(const char *str) : s{str} {};
 
+	explicit Expr(std::string &str) : s{str} {};
+	
 	double eval() {
 		vecToken tokens = toRPN(split(s));
 		std::stack<std::unique_ptr<ExprToken>> stack;
@@ -205,26 +205,39 @@ private:
 
 		return res;
 	}
+};
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class Program {
+private:
+	std::istream& _in;
+
+public:
+	Program(std::istream& in) : _in{in} {};
+
+	void exec() const {
+		std::string s;
+		while(std::getline(_in,s)) {
+			if (s[s.find_last_not_of(" \t\r")] == ';') {
+			} else {
+				Expr e{s};
+				std::cout << e.eval() << std::endl;
+		       }
+		}
+		
+	}
 };
 
 
 
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int main() {
 
-	Expr exp = Expr("   17 - 24 /    4 *  3 +   2   ");
+	Program prog{std::cin};
 
-	exp.print();
-
-	std::cout << exp.eval() << std::endl;
-
-	exp = Expr("17-24/4*3+2");
-
-	exp.print();
-
-	std::cout << exp.eval() << std::endl;
+	prog.exec();
 
 
 	return 0;
