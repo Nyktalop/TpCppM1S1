@@ -72,6 +72,7 @@ public:
 	double eval() {
 		vecToken tokens = toRPN(split(s));
 		if (tokens.empty()) {
+			std::cerr << "not a valid expression" << std::endl;
 			return 0;
 		}
 
@@ -147,7 +148,6 @@ private:
 				token += *it;
 				++it;
 			}
-			std::cout << "number read : " << token << std::endl;
 			vector.push_back(token);
 			token = "";
 
@@ -183,7 +183,7 @@ private:
 			}
 		}
 
-		return !s.empty() && it == s.end();
+		return !s.empty() && it == s.end() && (s.length() > 1 || point);
 	}
 
 	vecToken toRPN(std::vector<std::string> vec) {
@@ -193,7 +193,6 @@ private:
 		for (const auto &t : vec) {
 			if (isNumber(t)) {
 				res.push_back(std::make_unique<ExprTokenNumber>(stod(t)));
-
 			} else if (isOp(t)) {
 				std::unique_ptr<ExprTokenOp> token = std::make_unique<ExprTokenOp>(t[0]);
 				while (!stack.empty() && *token < *stack.top()) {
@@ -203,7 +202,6 @@ private:
 				stack.push(std::move(token));
 
 			} else {
-				std::cerr << "not a valid expression" << std::endl;
 				vecToken v;
 				return v;
 			}
