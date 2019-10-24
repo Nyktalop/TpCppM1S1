@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(SRC_PATH src/)
 
 set(SRCS
-        ${SRC_PATH}/tp1.cpp
+        ${SRC_PATH}/main.cpp
         ${SRC_PATH}/Program.cpp
         ${SRC_PATH}/Expr.cpp
         ${SRC_PATH}/Token.cpp)

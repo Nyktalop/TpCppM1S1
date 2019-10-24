@@ -97,9 +97,9 @@ std::vector<std::string> Expr::split(const std::string &s) const {
 		for (; it != s.end() && std::isspace(*it); ++it);
 
 		//reading a number
-		bool point{true};
-		while (it != s.end() && (std::isdigit(*it) || (*it == '.' && point))) {
-			if (*it == '.') point = false;
+		bool pointRead{false};
+		while (it != s.end() && (std::isdigit(*it) || (*it == '.' && !pointRead))) {
+			if (*it == '.') pointRead = true;
 			token += *it;
 			++it;
 		}
@@ -131,13 +131,13 @@ bool Expr::isOp(const std::string &s) const {
 
 bool Expr::isNumber(const std::string &s) const {
 	std::string::const_iterator it = s.begin();
-	bool point{true};
-	while (it != s.end() && (std::isdigit(*it) || (*it == '.' && point))) {
+	bool pointRead{false};
+	while (it != s.end() && (std::isdigit(*it) || (*it == '.' && !pointRead))) {
 		if (*it++ == '.') {
-			point = false;
+			pointRead = true;
 		}
 	}
-	return !s.empty() && it == s.end() && (s.length() > 1 || point);
+	return !s.empty() && it == s.end() && (s.length() > 1 || !pointRead);
 }
 
 vecToken Expr::toRPN(const std::vector<std::string> &vec) const {
