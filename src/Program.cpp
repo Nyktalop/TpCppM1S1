@@ -13,6 +13,7 @@ void Program::exec() const {
 			if (s[s.find_last_not_of(" \t\r")] == ';') {
 			} else {
 				Expr e{s};
+				e.print();
 				std::cout << e.eval() << std::endl;
 			}
 		}

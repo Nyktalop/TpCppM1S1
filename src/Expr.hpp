@@ -23,12 +23,19 @@ private:
 
 	std::string s;
 
+  
 	std::vector<std::string> split(const std::string &s) const;
 
 	bool isOp(const std::string &s) const;
 
 	bool isNumber(const std::string &s) const;
 
+	bool isLeftParenthesis(const std::string &s) const;
+
+	bool isLeftParenthesis(const char c) const;
+	
+	bool isRightParenthesis(const std::string &s) const;
+  
 	vecToken toRPN(const std::vector<std::string> &vec) const;
 };
 

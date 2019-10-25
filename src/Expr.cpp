@@ -60,8 +60,8 @@ double Expr::eval() const {
 					break;
 
 				default :
-					std::cerr << "??? : " << t->op() << std::endl;
-					exit(255);
+					std::cerr << "invalid expression (unknown token) : '" << t->op() << "'" << std::endl;
+					return 0;
 			}
 		}
 	}
@@ -92,7 +92,9 @@ std::vector<std::string> Expr::split(const std::string &s) const {
 
 	std::string::const_iterator it = s.begin();
 
-	while (it != s.end()) {
+	bool hasAdvanced = true;
+	while (it != s.end() && hasAdvanced) {
+		hasAdvanced = false;
 		//bypassing spaces
 		for (; it != s.end() && std::isspace(*it); ++it);
 
@@ -102,19 +104,27 @@ std::vector<std::string> Expr::split(const std::string &s) const {
 			if (*it == '.') pointRead = true;
 			token += *it;
 			++it;
+			hasAdvanced = true;
 		}
-		vector.push_back(token);
-		token = "";
+
+		//if a number is read
+		if(!token.empty()) {
+			vector.push_back(token);
+			token = "";
+		}
 
 		//bypassing spaces
 		for (; it != s.end() && std::isspace(*it); ++it);
 
-		//reading an op
+		//reading an op or parenthesis
 		if (it != s.end()) {
 			token += *it;
-			vector.push_back(token);
+			if(isOp(token) || isLeftParenthesis(token) || isRightParenthesis(token)) {
+				vector.push_back(token);
+				++it;
+				hasAdvanced = true;
+			}
 			token = "";
-			++it;
 		}
 	}
 
@@ -124,9 +134,9 @@ std::vector<std::string> Expr::split(const std::string &s) const {
 
 bool Expr::isOp(const std::string &s) const {
 	return s.length() == 1 && (s == "+" ||
-							   s == "-" ||
-							   s == "*" ||
-							   s == "/");
+				   s == "-" ||
+				   s == "*" ||
+				   s == "/" );
 }
 
 bool Expr::isNumber(const std::string &s) const {
@@ -140,6 +150,19 @@ bool Expr::isNumber(const std::string &s) const {
 	return !s.empty() && it == s.end() && (s.length() > 1 || !pointRead);
 }
 
+bool Expr::isLeftParenthesis(const std::string &s) const {
+	return s == "(" || s == "[" || s == "{";
+}
+
+bool Expr::isLeftParenthesis(const char c) const {
+	return c == '(' || c == '[' || c == '{';
+}
+
+bool Expr::isRightParenthesis(const std::string &s) const {
+	return s == ")" || s == "]" || s == "}";
+}
+
+
 vecToken Expr::toRPN(const std::vector<std::string> &vec) const {
 	vecToken res;
 	std::stack<std::unique_ptr<ExprToken>> stack;
@@ -147,6 +170,8 @@ vecToken Expr::toRPN(const std::vector<std::string> &vec) const {
 	for (const auto &t : vec) {
 		if (isNumber(t)) {
 			res.push_back(std::make_unique<ExprTokenNumber>(stod(t)));
+
+			
 		} else if (isOp(t)) {
 			std::unique_ptr<ExprTokenOp> token = std::make_unique<ExprTokenOp>(t[0]);
 			while (!stack.empty() && *token < *stack.top()) {
@@ -155,6 +180,22 @@ vecToken Expr::toRPN(const std::vector<std::string> &vec) const {
 			}
 			stack.push(std::move(token));
 
+			
+		} else if (isLeftParenthesis(t)){
+			std::unique_ptr<ExprTokenOp> token = std::make_unique<ExprTokenOp>(t[0]);
+			stack.push(std::move(token));
+			
+		} else if (isRightParenthesis(t)) {
+			while(!stack.empty() && !isLeftParenthesis(stack.top()->op())) {
+				res.push_back(std::move(stack.top()));
+				stack.pop();
+			}
+			if(!stack.empty()) {
+				stack.pop();
+			} else {
+			        vecToken v;
+				return v;
+			}
 		} else {
 			vecToken v;
 			return v;
