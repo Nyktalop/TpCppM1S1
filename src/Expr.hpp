@@ -13,7 +13,7 @@ public:
 
 	explicit Expr(const char *str);
 
-	explicit Expr(const std::string &str);
+	explicit Expr(std::string str);
 
 	double eval() const;
 

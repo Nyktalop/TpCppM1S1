@@ -10,7 +10,7 @@ using vecToken = std::vector<std::unique_ptr<ExprToken>>;
 
 Expr::Expr(const char *str) : s{str} {};
 
-Expr::Expr(const std::string &str) : s{str} {};
+Expr::Expr(std::string str) : s{std::move(str)} {};
 
 
 //~~~~~~~~~~~~~~~~Public~Methods~~~~~~~~~~~~~~~~~~~~
