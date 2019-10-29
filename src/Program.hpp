@@ -11,6 +11,8 @@ private:
 	std::istream &_in;
 	std::unordered_map<std::string,double> variableMap;
 
+	bool isPartVarName(char c);
+
 	bool handleAssignation(std::string &s);
 
 	double evaluateExpression(std::string &s);

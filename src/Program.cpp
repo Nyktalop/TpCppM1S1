@@ -24,18 +24,25 @@ bool Program::handleAssignation(std::string &s) {
 	return true;
 }
 
+bool Program::isPartVarName(char c) {
+    return !std::isdigit(c) && !std::isspace(c) && c != ';'
+            && c != '+' && c != '-' && c != '*' && c!= '/'
+            && c != '(' && c != ')' && c != '.';
+}
+
 double Program::evaluateExpression(std::string &s) {
     std::string::const_iterator it = s.begin();
     std::string var;
     std::string buf;
     while(it != s.end()) {
-        while (it != s.end() && std::isalpha(*it)) {
+        while (it != s.end() && isPartVarName(*it)) {
             var += *it;
             ++it;
         }
         if (!var.empty()) {
             if (variableMap.find(var) != variableMap.end()) {
-                buf += variableMap[var];
+                std::cout << "variable : " << variableMap[var] << std::endl;
+                buf += std::to_string(variableMap[var]);
             } else {
                 std::cerr << "Unknown identifier in expression : '" << var << "'" << std::endl;
                 return 0;
@@ -43,8 +50,8 @@ double Program::evaluateExpression(std::string &s) {
         }
         var = "";
         if (it != s.end()) {
-            ++it;
             buf += *it;
+            ++it;
         }
     }
 
