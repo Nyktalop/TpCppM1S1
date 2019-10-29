@@ -14,8 +14,7 @@ bool Program::handleAssignation(std::string &s) {
 	std::string var = s.substr(0,splitInd);
 	std::string expr = s.substr(splitInd+1,-1);
 
-	Expr e{expr};
-	double result = e.eval();
+	double result = evaluateExpression(expr);
 	std::string name = extractVariableName(var); 
 	variableMap[name] = result;
 
@@ -23,6 +22,36 @@ bool Program::handleAssignation(std::string &s) {
 
 	
 	return true;
+}
+
+double Program::evaluateExpression(std::string &s) {
+    std::string::const_iterator it = s.begin();
+    std::string var;
+    std::string buf;
+    while(it != s.end()) {
+        while (it != s.end() && std::isalpha(*it)) {
+            var += *it;
+            ++it;
+        }
+        if (!var.empty()) {
+            if (variableMap.find(var) != variableMap.end()) {
+                buf += variableMap[var];
+            } else {
+                std::cerr << "Unknown identifier in expression : '" << var << "'" << std::endl;
+                return 0;
+            }
+        }
+        var = "";
+        if (it != s.end()) {
+            ++it;
+            buf += *it;
+        }
+    }
+
+    std::cout << "buffer :" << buf << std::endl;
+
+    Expr e{buf};
+    return e.eval();
 }
 
 std::string Program::extractVariableName(std::string &s) const {
@@ -46,15 +75,15 @@ std::string Program::extractVariableName(std::string &s) const {
 
 void Program::exec() {
 	std::string s;
-	while (std::getline(_in, s) && s != "q" && s != "quit") {
+	while (std::getline(_in, s) && s != "q" && s != "quit" && s != "exit") {
 		if (!s.empty()) {
 			if (s[s.find_last_not_of(" \t\r")] == ';') {
 				if(!handleAssignation(s)) {
 					std::cerr << "Not a valid instruction" << std::endl;
 				}
 			} else if (std::isdigit(s.front())){
-				Expr e{s};
-				std::cout << e.eval() << std::endl;
+				double res = evaluateExpression(s);
+				std::cout << res << std::endl;
 			} else {
 				std::string name = extractVariableName(s);
 				std::cout << variableMap[name] << std::endl;

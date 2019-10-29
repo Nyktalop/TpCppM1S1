@@ -8,15 +8,15 @@
 using vecToken = std::vector<std::unique_ptr<ExprToken>>;
 
 
-Expr::Expr(const char *str) : s{str} {};
+Expr::Expr(const char *str) : _s{str} {};
 
-Expr::Expr(std::string str) : s{std::move(str)} {};
+Expr::Expr(std::string str) : _s{std::move(str)} {};
 
 
 //~~~~~~~~~~~~~~~~Public~Methods~~~~~~~~~~~~~~~~~~~~
 
 double Expr::eval() const {
-	vecToken tokens = toRPN(split(s));
+	vecToken tokens = toRPN(split(_s));
 	if (tokens.empty()) {
 		std::cerr << "not a valid expression" << std::endl;
 		return 0;
@@ -69,7 +69,7 @@ double Expr::eval() const {
 }
 
 void Expr::print() const {
-	for (auto &t : toRPN(split(s))) {
+	for (auto &t : toRPN(split(_s))) {
 		if (t->type() == OP) {
 			std::cout << t->op();
 		} else if (t->type() == NUMBER) {

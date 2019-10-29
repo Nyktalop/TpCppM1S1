@@ -21,7 +21,7 @@ public:
 
 private:
 
-	std::string s;
+	std::string _s;
 
   
 	std::vector<std::string> split(const std::string &s) const;
@@ -32,7 +32,7 @@ private:
 
 	bool isLeftParenthesis(const std::string &s) const;
 
-	bool isLeftParenthesis(const char c) const;
+	bool isLeftParenthesis(char c) const;
 	
 	bool isRightParenthesis(const std::string &s) const;
   

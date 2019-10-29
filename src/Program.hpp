@@ -13,6 +13,8 @@ private:
 
 	bool handleAssignation(std::string &s);
 
+	double evaluateExpression(std::string &s);
+
 	std::string extractVariableName(std::string &s) const;
 	
 public:
