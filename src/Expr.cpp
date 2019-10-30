@@ -13,12 +13,11 @@ Expr::Expr(std::string str) : _s{std::move(str)} {};
 double Expr::eval() const {
 	vecToken tokens = toRPN(split(_s));
 	if (tokens.empty()) {
-		std::cerr << "not a valid expression" << std::endl;
+		std::cerr << "Not a valid expression" << std::endl;
 		return std::nan("");
 	}
 
 	std::stack<std::unique_ptr<ExprToken>> stack;
-
 	for (auto &t : tokens) {
 		if (t->type() == NUMBER) {
 			stack.push(std::move(t));
@@ -60,6 +59,15 @@ double Expr::eval() const {
 			}
 		}
 	}
+
+	//missing operators, assumed to be '*' ( 'x(y+z)' case )
+    while(stack.size() > 1) {
+	    std::unique_ptr<ExprToken> b = std::move(stack.top());
+        stack.pop();
+        std::unique_ptr<ExprToken> a = std::move(stack.top());
+        stack.pop();
+        stack.push(std::make_unique<ExprTokenNumber>(a->number() * b->number()));
+	}
 	return stack.top()->number();
 }
 
@@ -93,6 +101,14 @@ std::vector<std::string> Expr::split(const std::string &s) const {
 		//bypassing spaces
 		for (; it != s.end() && std::isspace(*it); ++it);
 
+		//reading an unary '-'
+		if(*it == '-') {
+		    vector.emplace_back("-1");
+		    vector.emplace_back("*");
+		    ++it;
+		    hasAdvanced = true;
+		}
+
 		//reading a number
 		bool pointRead{false};
 		while (it != s.end() && (std::isdigit(*it) || (*it == '.' && !pointRead))) {
@@ -114,6 +130,7 @@ std::vector<std::string> Expr::split(const std::string &s) const {
 		//reading an op or parenthesis
 		if (it != s.end()) {
 			token += *it;
+			//std::cout << token << std::endl;
 			if(isOp(token) || isLeftParenthesis(token) || isRightParenthesis(token)) {
 				vector.push_back(token);
 				++it;
@@ -123,11 +140,11 @@ std::vector<std::string> Expr::split(const std::string &s) const {
 		}
 	}
 
-
 	return vector;
 }
 
 bool Expr::isOp(const std::string &s) const {
+
 	return s.length() == 1 && (s == "+" ||
 				   s == "-" ||
 				   s == "*" ||
@@ -137,11 +154,16 @@ bool Expr::isOp(const std::string &s) const {
 bool Expr::isNumber(const std::string &s) const {
 	std::string::const_iterator it = s.begin();
 	bool pointRead{false};
+
+	if(*it == '-') {
+	    return isNumber(s.substr(1));
+	}
 	while (it != s.end() && (std::isdigit(*it) || (*it == '.' && !pointRead))) {
 		if (*it++ == '.') {
 			pointRead = true;
 		}
 	}
+
 	return !s.empty() && it == s.end() && (s.length() > 1 || !pointRead);
 }
 
@@ -188,7 +210,7 @@ vecToken Expr::toRPN(const std::vector<std::string> &vec) const {
 			if(!stack.empty()) {
 				stack.pop();
 			} else {
-			        vecToken v;
+			    vecToken v;
 				return v;
 			}
 		} else {

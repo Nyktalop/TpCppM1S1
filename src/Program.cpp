@@ -51,6 +51,7 @@ double Program::evaluateExpression(std::string &s) const {
             ++it;
         }
     }
+
     Expr e{buf};
     return e.eval();
 }
