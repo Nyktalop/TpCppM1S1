@@ -4,6 +4,10 @@
 #include <vector>
 #include <memory>
 #include <cmath>
+#include <string>
+#include <iostream>
+#include <stack>
+
 
 #include "Token.hpp"
 

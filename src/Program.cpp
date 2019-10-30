@@ -91,6 +91,7 @@ void Program::exec() {
 				if(splitInd != -1) {
                     handleAssignation(s,splitInd);
 				}
+
 			} else if (!isPartVarName(s.front())){
 				double res = evaluateExpression(s);
 				if(!std::isnan(res)) {
@@ -107,6 +108,7 @@ void Program::exec() {
                     }
                 }
 			}
+
 		}
 	}
 }
