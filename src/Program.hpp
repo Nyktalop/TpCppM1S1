@@ -13,7 +13,7 @@ private:
 
 	bool isPartVarName(char c) const;
 
-	bool handleAssignation(std::string &s);
+	bool handleAssignation(std::string &s, int splitInd);
 
 	double evaluateExpression(std::string &s) const;
 

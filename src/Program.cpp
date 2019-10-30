@@ -3,14 +3,8 @@
 
 Program::Program(std::istream &in) : _in{in} {};
 
-bool Program::handleAssignation(std::string &s) {
-	int splitInd = s.find('=');
+bool Program::handleAssignation(std::string &s, int splitInd) {
 
-	if(splitInd == -1) {
-		std::cerr << "'=' missing" << std::endl;
-		return false;
-	}
-	
 	std::string var = s.substr(0,splitInd);
 	std::string expr = s.substr(splitInd+1,-1);
 
@@ -71,7 +65,11 @@ std::string Program::extractVariableName(std::string &s) const {
 
 		while(it != s.end() && !std::isspace(*it)) {
 		    if(!isPartVarName(*it)) {
-		        std::cerr << "Invalid char in identifier : '" << *it << "'" << std::endl;
+		        std::cerr << "Invalid char in identifier : '" << *it << "'";
+		        if(*it == '=') {
+		            std::cerr << " maybe you forgot ';' ?";
+		        }
+                std::cerr << std::endl;
 		        return "";
 		    }
 			var += *it++;
@@ -89,14 +87,16 @@ void Program::exec() {
 	while (std::getline(_in, s) && s != "q" && s != "quit" && s != "exit") {
 		if (!s.empty()) {
 			if (s[s.find_last_not_of(" \t\r")] == ';') {
-				if(!handleAssignation(s)) {
-					std::cerr << "Not a valid instruction" << std::endl;
+                int splitInd = s.find('=');
+				if(splitInd != -1) {
+                    handleAssignation(s,splitInd);
 				}
-			} else if (std::isdigit(s.front())){
+			} else if (!isPartVarName(s.front())){
 				double res = evaluateExpression(s);
 				if(!std::isnan(res)) {
                     std::cout << res << std::endl;
                 }
+
 			} else {
 				std::string name = extractVariableName(s);
 				if(!name.empty()) {
@@ -105,9 +105,7 @@ void Program::exec() {
                     } else {
                         std::cerr << "unknown variable : '" << name << "'" << std::endl;
                     }
-                } else {
-				    std::cerr << "unknown variable : '" << s << "'" << std::endl;
-				}
+                }
 			}
 		}
 	}
