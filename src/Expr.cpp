@@ -19,7 +19,7 @@ double Expr::eval() const {
 	vecToken tokens = toRPN(split(_s));
 	if (tokens.empty()) {
 		std::cerr << "not a valid expression" << std::endl;
-		return 0;
+		return std::nan("");
 	}
 
 	std::stack<std::unique_ptr<ExprToken>> stack;
@@ -29,15 +29,15 @@ double Expr::eval() const {
 			stack.push(std::move(t));
 		} else if (t->type() == OP) {
 			if (stack.empty()) {
-				std::cerr << "not a valid expression" << std::endl;
-				return 0;
+				std::cerr << "Not a valid expression" << std::endl;
+				return std::nan("");
 			}
 			std::unique_ptr<ExprToken> b = std::move(stack.top());
 			stack.pop();
 
 			if (stack.empty()) {
-				std::cerr << "not a valid expression" << std::endl;
-				return 0;
+				std::cerr << "Not a valid expression" << std::endl;
+				return std::nan("");
 			}
 			std::unique_ptr<ExprToken> a = std::move(stack.top());
 			stack.pop();
@@ -60,8 +60,8 @@ double Expr::eval() const {
 					break;
 
 				default :
-					std::cerr << "invalid expression (unknown token) : '" << t->op() << "'" << std::endl;
-					return 0;
+					std::cerr << "Invalid expression (unknown token) : '" << t->op() << "'" << std::endl;
+					return std::nan("");
 			}
 		}
 	}

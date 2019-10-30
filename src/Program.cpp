@@ -15,22 +15,25 @@ bool Program::handleAssignation(std::string &s) {
 	std::string expr = s.substr(splitInd+1,-1);
 
 	double result = evaluateExpression(expr);
-	std::string name = extractVariableName(var); 
-	variableMap[name] = result;
+	std::string name = extractVariableName(var);
 
-	std::cout << "result (" << result << ") saved under the name '" << name << "'" << std::endl;
+	if(!std::isnan(result) && !name.empty()) {
+        variableMap[name] = result;
+        std::cout << "result (" << result << ") saved under the name '" << name << "'" << std::endl;
+	} else {
+	    return false;
+	}
 
-	
 	return true;
 }
 
-bool Program::isPartVarName(char c) {
+bool Program::isPartVarName(char c) const {
     return !std::isdigit(c) && !std::isspace(c) && c != ';'
-            && c != '+' && c != '-' && c != '*' && c!= '/'
-            && c != '(' && c != ')' && c != '.';
+            && c != '+' && c != '-' && c != '*' && c != '/'
+            && c != '(' && c != ')' && c != '.' && c != '=';
 }
 
-double Program::evaluateExpression(std::string &s) {
+double Program::evaluateExpression(std::string &s) const {
     std::string::const_iterator it = s.begin();
     std::string var;
     std::string buf;
@@ -41,11 +44,11 @@ double Program::evaluateExpression(std::string &s) {
         }
         if (!var.empty()) {
             if (variableMap.find(var) != variableMap.end()) {
-                std::cout << "variable : " << variableMap[var] << std::endl;
-                buf += std::to_string(variableMap[var]);
+                //std::cout << "variable : " << variableMap[var] << std::endl;
+                buf += std::to_string(variableMap.at(var));
             } else {
                 std::cerr << "Unknown identifier in expression : '" << var << "'" << std::endl;
-                return 0;
+                return std::nan("");
             }
         }
         var = "";
@@ -54,9 +57,6 @@ double Program::evaluateExpression(std::string &s) {
             ++it;
         }
     }
-
-    std::cout << "buffer :" << buf << std::endl;
-
     Expr e{buf};
     return e.eval();
 }
@@ -70,6 +70,10 @@ std::string Program::extractVariableName(std::string &s) const {
 		for (; it != s.end() && std::isspace(*it); ++it);
 
 		while(it != s.end() && !std::isspace(*it)) {
+		    if(!isPartVarName(*it)) {
+		        std::cerr << "Invalid char in identifier : '" << *it << "'" << std::endl;
+		        return "";
+		    }
 			var += *it++;
 		}
 		
@@ -90,15 +94,20 @@ void Program::exec() {
 				}
 			} else if (std::isdigit(s.front())){
 				double res = evaluateExpression(s);
-				std::cout << res << std::endl;
+				if(!std::isnan(res)) {
+                    std::cout << res << std::endl;
+                }
 			} else {
 				std::string name = extractVariableName(s);
-				std::cout << variableMap[name] << std::endl;
-				/*if(variableMap.find(name)) {
-					std::cout << variableMap[name] << std::endl;
-				} else {
-					std::cerr << "Not a valid instruction, maybe you forgot ';', or the variable does not exist" << std::endl;
-					}*/
+				if(!name.empty()) {
+                    if(variableMap.find(name) != variableMap.end()) {
+                        std::cout << variableMap[name] << std::endl;
+                    } else {
+                        std::cerr << "unknown variable : '" << name << "'" << std::endl;
+                    }
+                } else {
+				    std::cerr << "unknown variable : '" << s << "'" << std::endl;
+				}
 			}
 		}
 	}

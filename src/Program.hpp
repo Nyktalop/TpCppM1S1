@@ -11,11 +11,11 @@ private:
 	std::istream &_in;
 	std::unordered_map<std::string,double> variableMap;
 
-	bool isPartVarName(char c);
+	bool isPartVarName(char c) const;
 
 	bool handleAssignation(std::string &s);
 
-	double evaluateExpression(std::string &s);
+	double evaluateExpression(std::string &s) const;
 
 	std::string extractVariableName(std::string &s) const;
 	
