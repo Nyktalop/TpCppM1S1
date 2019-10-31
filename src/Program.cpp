@@ -93,19 +93,13 @@ void Program::exec() {
                     handleAssignation(s, splitInd);
                 }
 
-            } else if (!isPartVarName(s.front())) {
-                double res = evaluateExpression(s);
-                if (!std::isnan(res)) {
-                    std::cout << res << std::endl;
-                }
-
             } else {
-                std::string name = extractVariableName(s);
-                if (!name.empty()) {
-                    if (variableMap.find(name) != variableMap.end()) {
-                        std::cout << variableMap[name] << std::endl;
-                    } else {
-                        std::cerr << "unknown variable : '" << name << "'" << std::endl;
+                if(s.find('=') != -1) {
+                    std::cerr << "Invalid assignation instruction, maybe you forgot ';'" << std::endl;
+                } else {
+                    double res = evaluateExpression(s);
+                    if (!std::isnan(res)) {
+                        std::cout << res << std::endl;
                     }
                 }
             }
