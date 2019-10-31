@@ -2,10 +2,10 @@
 #include "Program.hpp"
 
 int main() {
-  
-	Program prog{std::cin};
 
-	prog.exec();
+    Program prog{std::cin};
 
-	return 0;
+    prog.exec();
+
+    return 0;
 }

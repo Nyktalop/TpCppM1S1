@@ -8,22 +8,22 @@
 
 class Program {
 private:
-	std::istream &_in;
-	std::unordered_map<std::string,double> variableMap;
+    std::istream &_in;
+    std::unordered_map<std::string, double> variableMap;
 
-	bool isPartVarName(char c) const;
+    bool isPartVarName(char c) const;
 
-	bool handleAssignation(std::string &s, int splitInd);
+    bool handleAssignation(std::string &s, int splitInd);
 
-	double evaluateExpression(std::string &s) const;
+    double evaluateExpression(std::string &s) const;
 
-	std::string extractVariableName(std::string &s) const;
-	
+    std::string extractVariableName(std::string &s) const;
+
 public:
-	explicit Program(std::istream &in);
+    explicit Program(std::istream &in);
 
-	void exec();
-	
+    void exec();
+
 };
 
 #endif //TPCPPM1S1_PROGRAM_H
