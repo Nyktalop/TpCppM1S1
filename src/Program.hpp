@@ -7,6 +7,7 @@
 #include "Expr.hpp"
 #include "Utils.hpp"
 
+
 class Program {
 private:
     std::istream &_in;
@@ -17,6 +18,8 @@ private:
     double evaluateExpression(std::string &s) const;
 
     std::string extractVariableName(std::string &s) const;
+
+    double execFunction(Function func, const std::vector<double> &args) const;
 
 public:
     explicit Program(std::istream &in);
