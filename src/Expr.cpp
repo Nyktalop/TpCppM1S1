@@ -173,12 +173,10 @@ vecToken Expr::toRPN(const std::vector<std::string> &vec) const {
             if (!stack.empty()) {
                 stack.pop();
             } else {
-                vecToken v;
-                return v;
+                return {};
             }
         } else {
-            vecToken v;
-            return v;
+            return {};
         }
     }
 
