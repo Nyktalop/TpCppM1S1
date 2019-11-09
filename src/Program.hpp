@@ -5,15 +5,14 @@
 #include <unordered_map>
 
 #include "Expr.hpp"
+#include "Utils.hpp"
 
 class Program {
 private:
     std::istream &_in;
     std::unordered_map<std::string, double> variableMap;
 
-    bool isPartVarName(char c) const;
-
-    bool handleAssignation(std::string &s, int splitInd);
+    bool handleAssignation(std::string &s, unsigned splitInd);
 
     double evaluateExpression(std::string &s) const;
 

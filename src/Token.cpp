@@ -10,6 +10,6 @@ ExprTokenNumber::ExprTokenNumber(double i) : ExprToken{NUMBER}, _number{i} {}
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-//~~~~~~~~~~~~~~~~~~~ExprTokenOp~~~~~~~~~~~~~~~~~~~~~~~
-ExprTokenOp::ExprTokenOp(char c) : ExprToken{OP}, _op{c} {}
+//~~~~~~~~~~~~~~~~~~~ExprTokenChar~~~~~~~~~~~~~~~~~~~~~~~
+ExprTokenChar::ExprTokenChar(char c) : ExprToken{CHAR}, _char{c} {}
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

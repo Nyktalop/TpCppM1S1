@@ -8,7 +8,7 @@
 #include <iostream>
 #include <stack>
 
-
+#include "Utils.hpp"
 #include "Token.hpp"
 
 using vecToken = std::vector<std::unique_ptr<ExprToken>>;
@@ -26,20 +26,9 @@ public:
 
 private:
 
-    std::string _s;
+	std::string _s;
 
-
-    std::vector<std::string> split(const std::string &s) const;
-
-    bool isOp(const std::string &s) const;
-
-    bool isNumber(const std::string &s) const;
-
-    bool isLeftParenthesis(const std::string &s) const;
-
-    bool isLeftParenthesis(char c) const;
-
-    bool isRightParenthesis(const std::string &s) const;
+	std::vector<std::string> split(const std::string &s) const;
 
     vecToken toRPN(const std::vector<std::string> &vec) const;
 };

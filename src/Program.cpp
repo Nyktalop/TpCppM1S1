@@ -3,7 +3,7 @@
 
 Program::Program(std::istream &in) : _in{in} {};
 
-bool Program::handleAssignation(std::string &s, int splitInd) {
+bool Program::handleAssignation(std::string &s, unsigned splitInd) {
 
     std::string var = s.substr(0, splitInd);
     std::string expr = s.substr(splitInd + 1, -1);
@@ -21,18 +21,13 @@ bool Program::handleAssignation(std::string &s, int splitInd) {
     return true;
 }
 
-bool Program::isPartVarName(char c) const {
-    return !std::isdigit(c) && !std::isspace(c) && c != ';'
-           && c != '+' && c != '-' && c != '*' && c != '/'
-           && c != '(' && c != ')' && c != '.' && c != '=';
-}
 
 double Program::evaluateExpression(std::string &s) const {
     std::string::const_iterator it = s.begin();
     std::string var;
     std::string buf;
     while (it != s.end()) {
-        while (it != s.end() && isPartVarName(*it)) {
+        while (it != s.end() && Utils::isPartVarName(*it)) {
             var += *it;
             ++it;
         }
@@ -65,7 +60,7 @@ std::string Program::extractVariableName(std::string &s) const {
         for (; it != s.end() && std::isspace(*it); ++it);
 
         while (it != s.end() && !std::isspace(*it)) {
-            if (!isPartVarName(*it)) {
+            if (!Utils::isPartVarName(*it)) {
                 std::cerr << "Invalid char in identifier : '" << *it << "'";
                 if (*it == '=') {
                     std::cerr << " maybe you forgot ';' ?";
@@ -88,7 +83,7 @@ void Program::exec() {
     while (std::getline(_in, s) && s != "q" && s != "quit" && s != "exit") {
         if (!s.empty()) {
             if (s[s.find_last_not_of(" \t\r")] == ';') {
-                int splitInd = s.find('=');
+                unsigned splitInd = s.find('=');
                 if (splitInd != -1) {
                     handleAssignation(s, splitInd);
                 }

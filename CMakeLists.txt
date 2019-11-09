@@ -13,6 +13,7 @@ set(SRCS
 set(HEADERS
         ${SRC_PATH}/Program.hpp
         ${SRC_PATH}/Expr.hpp
-        ${SRC_PATH}/Token.hpp)
+        ${SRC_PATH}/Token.hpp
+        ${SRC_PATH}/Utils.hpp)
 
 add_executable(TpCppM1S1 ${SRCS} ${HEADERS})

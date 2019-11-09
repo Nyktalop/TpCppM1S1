@@ -8,7 +8,7 @@
 enum TokenType {
     NONE,
     NUMBER,
-    OP
+    CHAR
 };
 
 
@@ -27,7 +27,7 @@ public:
 
     virtual const double number() = 0;
 
-    virtual const char op() = 0;
+    virtual const char character() = 0;
 };
 
 using vecToken = std::vector<std::unique_ptr<ExprToken>>;
@@ -40,27 +40,27 @@ public :
 
     inline const double number() override { return _number; }
 
-    inline const char op() override { return 'o'; }
+    inline const char character() override { return 'o'; }
 
 
 };
 
-class ExprTokenOp : public ExprToken {
+class ExprTokenChar : public ExprToken {
 private :
-    char _op;
+    char _char;
 
 public :
-    explicit ExprTokenOp(char c);
+    explicit ExprTokenChar(char c);
 
-    const char op() override { return _op; }
+    const char character() override { return _char; }
 
     const double number() override { return 0; }
 
     bool operator<(ExprToken &t) {
-        if (t.type() != OP)
+        if (t.type() != CHAR)
             return false;
 
-        return (_op == '+' || _op == '-') && (t.op() == '*' || t.op() == '/');
+        return (_char == '+' || _char == '-') && (t.character() == '*' || t.character() == '/');
     }
 };
 
