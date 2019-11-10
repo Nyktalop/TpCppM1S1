@@ -143,6 +143,7 @@ double Program::evaluateExpression(std::string &s) const {
         if (!var.empty()) {
             Function func;
             if( (func = Utils::getFunc(var)) != UNDEFINED) {
+                //reading the function args
                 if(it != s.end() && Utils::isLeftParenthesis(*it)) {
                     //omitting the first '('
                     ++it;
@@ -150,6 +151,7 @@ double Program::evaluateExpression(std::string &s) const {
                     std::string argbuf;
                     unsigned parCount = 1;
 
+                    //until the end of the args
                     while(it != s.end() && parCount != 0) {
                         if(Utils::isRightParenthesis(*it)) {
                             //omitting the last ')'
@@ -162,6 +164,7 @@ double Program::evaluateExpression(std::string &s) const {
                         } else if(*it != ',') {
                             argbuf += *it;
                         } else if (!argbuf.empty()){
+                            //if not in a nested func usage ( pow(1,pow(2,3)) )
                             if(parCount <= 1) {
                                 double res = evaluateExpression(argbuf);
                                 if (std::isnan(res)) {
@@ -176,6 +179,7 @@ double Program::evaluateExpression(std::string &s) const {
                         }
                         ++it;
                     }
+
                     if(!argbuf.empty()) {
                         double res = evaluateExpression(argbuf);
                         if(std::isnan(res)) {
@@ -190,13 +194,13 @@ double Program::evaluateExpression(std::string &s) const {
                         return std::nan("");
                     }
 
-                    buf += std::to_string(execFunction(func, args));
+                    double res = execFunction(func, args);
 
-                    if(it != s.end()) {
-                        ++it;
+                    if(!std::isnan(res)) {
+                        buf += std::to_string(res);
+                    } else {
+                        return res;
                     }
-
-
                 } else {
                     std::cerr << "Misuse (no args) of function identifier : '" << var << "'"  <<std::endl;
                     return std::nan("");
@@ -214,6 +218,7 @@ double Program::evaluateExpression(std::string &s) const {
             buf += *it;
             ++it;
         }
+
     }
 
     Expr e{buf};
