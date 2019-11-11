@@ -16,13 +16,13 @@ using vecToken = std::vector<std::unique_ptr<ExprToken>>;
 class Expr {
 public:
 
-    explicit Expr(const char *str);
+	explicit Expr(const char *str);
 
-    explicit Expr(std::string str);
+	explicit Expr(std::string str);
 
-    double eval() const;
+	double eval() const;
 
-    void print() const;
+	void print() const;
 
 private:
 
@@ -30,7 +30,7 @@ private:
 
 	std::vector<std::string> split(const std::string &s) const;
 
-    vecToken toRPN(const std::vector<std::string> &vec) const;
+	vecToken toRPN(const std::vector<std::string> &vec) const;
 };
 
 

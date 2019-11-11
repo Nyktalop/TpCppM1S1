@@ -3,9 +3,9 @@
 
 int main() {
 
-    Program prog{std::cin};
+	Program prog{std::cin};
 
-    prog.exec();
+	prog.exec();
 
-    return 0;
+	return 0;
 }

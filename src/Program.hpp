@@ -10,21 +10,21 @@
 
 class Program {
 private:
-    std::istream &_in;
-    std::unordered_map<std::string, double> variableMap;
+	std::istream &_in;
+	std::unordered_map<std::string, double> variableMap;
 
-    bool handleAssignation(std::string &s, unsigned splitInd);
+	bool handleAssignation(std::string &s, unsigned splitInd);
 
-    double evaluateExpression(std::string &s) const;
+	double evaluateExpression(std::string &s) const;
 
-    std::string extractVariableName(std::string &s) const;
+	std::string extractVariableName(std::string &s) const;
 
-    double execFunction(Function func, const std::vector<double> &args) const;
+	double execFunction(Function func, const std::vector<double> &args) const;
 
 public:
-    explicit Program(std::istream &in);
+	explicit Program(std::istream &in);
 
-    void exec();
+	void exec();
 
 };
 

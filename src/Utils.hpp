@@ -66,26 +66,26 @@ public:
 			   && c != '(' && c != ')' && c != '.' && c != '=';
 	}
 
-	static Function getFunc(std::string& s) {
-		if (s=="sin") {
+	static Function getFunc(std::string &s) {
+		if (s == "sin") {
 			return SIN;
-		} else if (s=="cos") {
-			return  COS;
-		} else if (s=="tan") {
+		} else if (s == "cos") {
+			return COS;
+		} else if (s == "tan") {
 			return TAN;
-		} else if (s=="sqrt") {
-			return  SQRT;
-		} else if (s=="log") {
+		} else if (s == "sqrt") {
+			return SQRT;
+		} else if (s == "log") {
 			return LOG;
-		} else if (s=="exp") {
+		} else if (s == "exp") {
 			return EXP;
-		} else if (s=="pow") {
+		} else if (s == "pow") {
 			return POW;
-		} else if (s=="hypot") {
+		} else if (s == "hypot") {
 			return HYP;
-		} else if (s=="lerp") {
+		} else if (s == "lerp") {
 			return LERP;
-		} else if (s=="polynome") {
+		} else if (s == "polynome") {
 			return POLY;
 		}
 
