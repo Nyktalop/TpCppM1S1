@@ -255,6 +255,7 @@ std::string Program::extractVariableName(std::string &s) const {
 void Program::exec() {
 	std::string s;
 	while (std::getline(_in, s) && s != "q" && s != "quit" && s != "exit") {
+		s  = s.substr(0,s.find('#'));
 		if (!s.empty()) {
 			if (s[s.find_last_not_of(" \t\r")] == ';') {
 				unsigned splitInd = s.find('=');
