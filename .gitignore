@@ -31,9 +31,9 @@
 *.out
 *.app
 
-.aux
-.log
-.synctex.gz
+Rapports/*.aux
+Rapports/*.log
+Rapports/*.synctex.gz
 
 .idea/**
 cmake-build-debug
