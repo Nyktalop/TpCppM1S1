@@ -112,7 +112,7 @@ double Program::execFunction(const Function func, const std::vector<double> &arg
 		case POLY : {
 			if (args.size() <= 1 || args.size() != args[0] + 3) {
 				std::cerr
-						<< "Invalid number of arguments for function 'polynome', shoulde be polynome(degree, [list of coeff (degree+1)], variable)"
+						<< "Invalid number of arguments for function 'polynome', should be polynome(degree, [list of coeff (degree+1)], variable)"
 						<< std::endl;
 				return std::nan("");
 			} else if (args.back() == 0) {
