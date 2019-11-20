@@ -38,14 +38,110 @@
 \begin{document}
 \maketitle
 
-\section{Architecture et organisation du programme}
+\section{Organisation de la gestion des fonctions}
+\subsection{Traitement du string d'entrée}
+J'ai décidé de traiter les fonctions de la même manière que je traitais les variables lors de la phase précédente : elles sont interprétées et remplacées par leurs valeurs dans la string avant que cette dernière soit évaluée par la classe expression.
 
+Lorsqu'une string est reçue en entrée, le programme la parcoure une première fois et fait la différence entre les caractères appartenant à une expression <<pure>> (réels, opérateurs, parenthèses...) et les parties d'identifiants (variables ou fonctions). Dans le premier cas il copie juste le caractère dans le string de sortie, sinon, il lit l'ensemble de l'identifiant et détermine s'il sait de quoi il s'agit.
+
+Dans le cas d'une fonctions, le système va lire les arguments fournis, les évaluer de manière récursive et exécuter la fonction avec ces arguments avant de placer le résultat dans la string à évaluer.
+
+\begin{figure}[h]
+\centering
+\begin{lstlisting}
+} else if (!argbuf.empty()) {
+	//if not in a nested func usage ( pow(1,pow(2,3)) )
+	if (parCount <= 1) {
+		double res = evaluateExpression(argbuf);
+		if (std::isnan(res)) {
+			std::cerr << "Expression : '" << argbuf << "' is invalid" << std::endl;
+			return std::nan("");
+		}
+		args.push_back(res);
+		argbuf = "";
+		} else {
+			argbuf += *it;
+		}
+}
+\end{lstlisting}
+\caption{Appel récursif de \textit{evaluateExpression}}
+\end{figure} 
+
+\subsection{Évaluation de fonctions}
+Une fois la fonction identifiée (et associée au membre correspondant d'une enum) et ses arguments isolés, ils sont passés à la fonction \textit{execFunction}.
+\begin{figure}[h]
+\centering
+\begin{lstlisting}
+double execFunction(Function func, 
+					const std::vector<double> &args) const;
+\end{lstlisting}
+\caption{Déclaration de \textit{execFunction} dans \textit{Program.hpp}}
+\end{figure} 
+
+Cette fonction vérifie la validité des arguments(log d'une valeur négative) et leur nombre avant d'appliquer la fonction a ces arguments et renvoyer le résultat.
+
+\begin{figure}[h]
+\centering
+\begin{lstlisting}
+case SQRT :
+	if (args.size() != 1) {
+		std::cerr << "Invalid number of arguments for function 'sqrt', should be 1" << std::endl;
+		return std::nan("");
+	} else if (args[0] < 0) {
+		std::cerr << "Negative argument for function 'sqrt' : " << args[0] << std::endl;
+		return std::nan("");
+	}
+	return sqrt(args[0]);
+\end{lstlisting}
+\caption{Exécution de \textit{sqrt()}}
+\end{figure}
+
+Cette organisation me permet de rajouter et modifier librement des fonctions, même si elles sont non standard (hypot, polynome...)  
 
 \section{Choix d'implémentations}
+\subsection{utilisation de la classe Expr}
+Un point présent depuis la phase 1 mais que j'ai peu détaillé est l'usage que je fais de ma classe Expr : elle a pour rôle de renvoyer le résultat d'une expression correctement formée (voir rapport phase 1),  en gérant la priorité d'opérateurs, mais pas l'identification de variables ni l'exécution de fonction.
+C'est pour ça qu'elle n'est utilisée qu'à la fin de la fonction \textit{evaluateExpression}
 
+\subsection{Agrégation de fonctions utilitaires dans \textit{Utils.hpp}} 
+Lors de la reprise du code pour la phase 2 il était déjà visible que plusieurs classes distinctes tenaient des définitions de fonctions utilitaires pouvant être employés par d'autres classes, et ce sans réelle logique de positionnement si ce n'est le premier endroit où j'en ai eu besoin.
 
-\section{Détails du code}
+Le projet étant naturellement appelé à grandir, ce problème n'en serait devenu que plus grand, c'est pourquoi j'ai rajouté un namespace \textit{Utils} contenu dans \textit{Utils.hpp} définissant les fonctions utilitaires pouvant se retrouver dans plusieurs classes, ces fonctions sont déclarées static et inline pour la plupart, permettant au compilateur d'au mieux s'adapter à leur utilisation et éviter plusieurs déréférencements inutiles.
 
+\begin{figure}[h]
+\centering
+\begin{lstlisting}
+namespace Utils {
+	static inline bool isOp(const std::string &s) {
+		return s.length() == 1 && (s == "+" ||
+								   s == "-" ||
+								   s == "*" ||
+								   s == "/");
+	}
+	[...]
+};
+\end{lstlisting}
+\caption{Le namespace \textit{Utils}}
+\end{figure}
 
 \section{Remarques}
+\subsection{Evolution des tests}
+Le script de test a évolué : 
+appeler ./test.sh <num> exécutera le test correspondant au num :
+\begin{itemize}
+\item[\hspace{.5cm}1$-$]tests basiques
+\item[\hspace{.5cm}2$-$]utilisation de variables
+\item[\hspace{.5cm}3$-$]fonctions unaires
+\item[\hspace{.5cm}4$-$]fonctions a arguments multiples
+\item[\hspace{.5cm}5$-$]fonction représentant la plupart des cas limites
+\item[\hspace{.5cm}6$-$]fonction générant des erreurs
+\end{itemize}\bigskip
+Appeler ./test.sh testera le programme sur l'ensemble des fichiers test disponibles .
+
+\subsection{Éventuels refactors}
+Les fonctions \textit{evaluateExpression} et \textit{execFunction} sont longues et peu lisibles, elles mériteraient un redécoupage fonctionnel, cependant chaque partie de \textit{evaluateExpression} est susceptible de modifier l'état de l'itérateur ce qui rend ce découpage potentiellement contre-productif. De la même façon \textit{execFunction} répond à une logique simple de \textit{switch case} et reste donc lisible même si longue.
+
+\subsection{Utilisation de l'énumération de fonctions}
+J'utilise l'enum \textit{Function} pour identifier une fonctions associée à une string (par \textit{getFunc()}) afin d'utiliser un \textit{switch case}, ce qui est impossible sur des string (on pourrait les hasher et les comparer à des hash constexpr cela dit) mais ça ne fait que déplacer le problème dans la fonction \textit{getFunc()}. Néanmoins l'énumération me permet d'utiliser la valeur UNDEFINED comme valeur <<critique>> dans ma gestion d'erreur (comme décrit dans le rapport phase 1) ou pour vérifier la validité d'un nom de variable.
+
 \end{document}

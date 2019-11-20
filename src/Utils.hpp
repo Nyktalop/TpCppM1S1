@@ -18,8 +18,7 @@ enum Function {
 };
 
 
-class Utils {
-public:
+namespace Utils {
 	static inline bool isOp(const std::string &s) {
 
 		return s.length() == 1 && (s == "+" ||
@@ -91,8 +90,6 @@ public:
 
 		return UNDEFINED;
 	}
-
-	Utils() = delete;
 };
 
 

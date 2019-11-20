@@ -80,9 +80,6 @@ double Program::execFunction(const Function func, const std::vector<double> &arg
 			if (args.size() != 2) {
 				std::cerr << "Invalid number of arguments for function 'pow', should be 2" << std::endl;
 				return std::nan("");
-			} else if (args[0] == 0) {
-				std::cerr << "Argument 1 of 'pow' should not be zero" << std::endl;
-				return std::nan("");
 			}
 			return pow(args[0], args[1]);
 
