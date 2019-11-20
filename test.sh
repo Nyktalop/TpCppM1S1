@@ -2,7 +2,7 @@ if [ ! -f "TpCppM1S1" ]; then
     sh build.sh
 fi
 
-testfic():
+testfic()
 {
     echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\tTesting with \"$1\" :"
     echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -13,12 +13,13 @@ testfic():
     echo
 }
 
-if [ "$#" -eq 1 ]
+if [ "$#" -eq 0 ]
+then
     for i in Tests/*
     do
        testfic "$i"
     done
 else
-    testfic "Tests/$1*.tst"
+    eval testfic "Tests/$1*.tst"
 fi
 
