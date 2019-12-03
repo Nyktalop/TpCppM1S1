@@ -3,7 +3,7 @@
 
 #include <string>
 
-enum Function {
+enum Function{
 	SIN,
 	COS,
 	TAN,
