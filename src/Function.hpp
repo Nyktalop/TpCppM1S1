@@ -17,9 +17,9 @@ protected :
 	unsigned _nbArgs = 0;
 
 public :
-	std::string repr()const;
+	virtual std::string repr()const;
 
-	bool isComplete() const;
+	virtual bool isComplete() const;
 
 	virtual double eval() const = 0;
 
@@ -142,4 +142,20 @@ public:
 
 	explicit Id();
 };
+
+class Poly : public Function {
+public:
+	double eval() const override;
+
+	std::unique_ptr<Function> addArgs(std::vector<double> newArgs) override;
+
+	std::string repr()const override;
+
+	bool isComplete() const override;
+
+	explicit Poly(std::vector<double> args);
+
+	explicit Poly();
+};
+
 #endif //TPCPPM1S1_FUNCTION_HPP

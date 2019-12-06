@@ -13,6 +13,7 @@ Program::Program(std::istream &in) : _in{in} {
 	functionMap["hypot"] = std::make_unique<Hypot>();
 	functionMap["lerp"] = std::make_unique<Lerp>();
 	functionMap["ident"] = std::make_unique<Id>();
+	functionMap["polynome"] = std::make_unique<Poly>();
 
 };
 
@@ -155,7 +156,7 @@ Func Program::evaluateExpression(std::string &s) const {
 										return nullptr;
 									}
 								} else {
-									std::cerr << "Invalid expression '_', this needs a number [0-9] to be a placeholder" << std::endl;
+									std::cerr << "Invalid expression '_', this needs a number [0-9]+ to be a placeholder" << std::endl;
 									return nullptr;
 								}
 

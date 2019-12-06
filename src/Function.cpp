@@ -421,3 +421,94 @@ Id::Id(std::vector<double> args): Function(args, 1, "ident") {}
 
 Id::Id(): Function(1, "ident") {}
 /*-------------------------------------------------------------------------*/
+
+/*---------------------------------POLY-----------------------------------*/
+bool Poly::isComplete() const {
+	return !_args.empty() && !std::isnan(_args[0]) && _nbArgs == _args[0]+3;
+}
+
+std::string Poly::repr() const {
+	unsigned nbPlace = 1;
+	std::string args;
+	if (_args.empty() || std::isnan(_args[0])) {
+		for (double arg : _args) {
+			if(!std::isnan(arg)) {
+				args.append(std::to_string(arg));
+			} else {
+				args.append("_" + std::to_string(nbPlace++));
+			}
+			args.append(", ");
+		}
+		return _baseFuncName + "(" + args + "...)";
+	}
+	else {
+		for(int i=0;i<_args[0]+3;++i) {
+			if(i < _args.size()) {
+				if (std::isnan(_args[i])) {
+					args.append("_" + std::to_string(nbPlace++));
+				} else {
+					args.append(std::to_string(_args[i]));
+				}
+			} else {
+				args.append("_" + std::to_string(nbPlace++));
+			}
+
+			if(i != _args[0]+2) {
+				args.append(", ");
+			}
+		}
+		return _baseFuncName + "(" + args + ")";
+	}
+}
+
+double Poly::eval() const{
+	if(isComplete()){
+		double res = 0;
+		for (int i = 0; i <= _args[0]; ++i) {
+			res += _args[i + 1] * pow(_args.back(), i);
+		}
+		return res;
+	}
+	std::cerr << "The function 'Poly' is not evaluable : not complete" << std::endl;
+	return std::nan("");
+}
+
+std::unique_ptr<Function> Poly::addArgs(std::vector<double> newArgs){
+	//if degree is not defined (not in args or nan), and is not defined in the new args, accept any args
+	bool accept = (_args.empty() || std::isnan(_args[0]) );
+	unsigned degree = 0;
+	if(!accept) {
+		degree = static_cast<unsigned>(_args[0]);
+	}
+	if(accept && !(newArgs.empty() || std::isnan(newArgs[0])) ) {
+		accept = false;
+		degree = static_cast<unsigned>(newArgs[0]);
+	}
+
+	if (accept || _nbArgs + newArgs.size() <= degree + 3) {
+		auto vec = _args;
+		auto it_args = vec.begin();
+		auto it_new = newArgs.begin();
+		while(it_args != vec.end() && it_new != newArgs.end()) {
+			if(std::isnan(*it_args)) {
+				*it_args = *it_new;
+				it_new++;
+			}
+			it_args++;
+		}
+		while(it_new != newArgs.end()) {
+			vec.push_back(*it_new);
+			it_new++;
+		}
+
+		return std::make_unique<Poly>(vec);
+	}
+
+	std::cerr << "Wrong number of arguments for function type 'polynome'" << std::endl;
+	return nullptr;
+}
+
+Poly::Poly(std::vector<double> args): Function(args, 0, "polynome") {}
+
+Poly::Poly(): Function(0, "polynome") {}
+/*-------------------------------------------------------------------------*/
