@@ -3,23 +3,26 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <memory>
 
 #include "Expr.hpp"
 #include "Utils.hpp"
+#include "Function.hpp"
 
+using Func = std::unique_ptr<Function>;
 
 class Program {
 private:
 	std::istream &_in;
-	std::unordered_map<std::string, double> variableMap;
+	std::unordered_map<std::string, std::unique_ptr<Function>> functionMap;
 
 	bool handleAssignation(std::string &s, unsigned splitInd);
 
-	double evaluateExpression(std::string &s) const;
+	Func evaluateExpression(std::string &s) const;
 
 	std::string extractVariableName(std::string &s) const;
 
-	double execFunction(Function func, const std::vector<double> &args) const;
+	bool isFunc(std::string& s) const;
 
 public:
 	explicit Program(std::istream &in);

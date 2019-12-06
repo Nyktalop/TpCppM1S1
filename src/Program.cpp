@@ -1,24 +1,48 @@
 #include "Program.hpp"
 
 
-Program::Program(std::istream &in) : _in{in} {};
+Program::Program(std::istream &in) : _in{in} {
+	//generating base functions
+	functionMap["log"] = std::make_unique<Log>();
+	functionMap["cos"] = std::make_unique<Cos>();
+	functionMap["sin"] = std::make_unique<Sin>();
+	functionMap["tan"] = std::make_unique<Tan>();
+	functionMap["sqrt"] = std::make_unique<Sqrt>();
+	functionMap["exp"] = std::make_unique<Exp>();
+	functionMap["pow"] = std::make_unique<Pow>();
+	functionMap["hypot"] = std::make_unique<Hypot>();
+	functionMap["lerp"] = std::make_unique<Lerp>();
+	functionMap["ident"] = std::make_unique<Id>();
+
+};
+
+bool Program::isFunc(std::string &s) const {
+	return functionMap.find(s) != functionMap.end();
+}
+
 
 bool Program::handleAssignation(std::string &s, unsigned splitInd) {
 
 	std::string var = s.substr(0, splitInd);
 	std::string expr = s.substr(splitInd + 1, -1);
 
-	double result = evaluateExpression(expr);
+	Func result = evaluateExpression(expr);
 	std::string name = extractVariableName(var);
 
-	if (Utils::getFunc(name) != UNDEFINED) {
-		std::cerr << "Unable to use '" << name << "' as variable name : is a function" << std::endl;
+	if (Utils::isBaseFunc(name)) {
+		std::cerr << "Unable to use '" << name << "' as variable name : is a basic function" << std::endl;
 		return false;
 	}
 
-	if (!std::isnan(result) && !name.empty()) {
-		variableMap[name] = result;
-		std::cout << "result (" << result << ") saved under the name '" << name << "'" << std::endl;
+	if (result != nullptr && !name.empty()) {
+		if(result->isComplete()) {
+			functionMap[name] = std::make_unique<Id>(std::vector{result->eval()});
+			std::cout << "result : " << result->eval() << " saved under the name '" << name << "'" << std::endl;
+		}
+		else {
+			functionMap[name] = std::move(result);
+			std::cout << "partial function : " << functionMap[name]->repr() << " saved under the name '" << name << "'" << std::endl;
+		}
 	} else {
 		return false;
 	}
@@ -26,109 +50,8 @@ bool Program::handleAssignation(std::string &s, unsigned splitInd) {
 	return true;
 }
 
-double Program::execFunction(const Function func, const std::vector<double> &args) const {
-	switch (func) {
-		case SIN :
-			if (args.size() != 1) {
-				std::cerr << "Invalid number of arguments for function 'sin', should be 1" << std::endl;
-				return std::nan("");
-			}
-			return sin(args[0]);
 
-		case COS :
-			if (args.size() != 1) {
-				std::cerr << "Invalid number of arguments for function 'cos', should be 1" << std::endl;
-				return std::nan("");
-			}
-			return cos(args[0]);
-
-		case TAN :
-			if (args.size() != 1) {
-				std::cerr << "Invalid number of arguments for function 'tan', should be 1" << std::endl;
-				return std::nan("");
-			}
-			return tan(args[0]);
-
-		case SQRT :
-			if (args.size() != 1) {
-				std::cerr << "Invalid number of arguments for function 'sqrt', should be 1" << std::endl;
-				return std::nan("");
-			} else if (args[0] < 0) {
-				std::cerr << "Negative argument for function 'sqrt' : " << args[0] << std::endl;
-				return std::nan("");
-			}
-			return sqrt(args[0]);
-
-		case LOG :
-			if (args.size() != 1) {
-				std::cerr << "Invalid number of arguments for function 'log', should be 1" << std::endl;
-				return std::nan("");
-			} else if (args[0] <= 0) {
-				std::cerr << "Negative or zero argument for function 'log' : " << args[0] << std::endl;
-				return std::nan("");
-			}
-			return log(args[0]);
-
-		case EXP :
-			if (args.size() != 1) {
-				std::cerr << "Invalid number of arguments for function 'exp', should be 1" << std::endl;
-				return std::nan("");
-			}
-			return exp(args[0]);
-
-		case POW :
-			if (args.size() != 2) {
-				std::cerr << "Invalid number of arguments for function 'pow', should be 2" << std::endl;
-				return std::nan("");
-			}
-			return pow(args[0], args[1]);
-
-		case HYP :
-			if (args.size() != 2) {
-				std::cerr << "Invalid number of arguments for function 'hypot', should be 2" << std::endl;
-				return std::nan("");
-			} else if (args[0] < 0 || args[1] < 0) {
-				std::cerr << "Arguments of 'hypot' should not be negative" << std::endl;
-				return std::nan("");
-			}
-			return sqrt(pow(args[0], 2) + pow(args[1], 2));
-
-		case LERP :
-			if (args.size() != 3) {
-				std::cerr << "Invalid number of arguments for function 'lerp', should be 3" << std::endl;
-				return std::nan("");
-			} else if (args[2] < 0) {
-				std::cerr << "Argument 3 of 'lerp' should be >= 0" << std::endl;
-				return std::nan("");
-			} else if (args[2] > 1) {
-				std::cerr << "Argument 3 of 'lerp' should be <= 1" << std::endl;
-				return std::nan("");
-			}
-			return args[0] + args[2] * (args[1] - args[0]);
-
-		case POLY : {
-			if (args.size() <= 1 || args.size() != args[0] + 3) {
-				std::cerr
-						<< "Invalid number of arguments for function 'polynome', should be polynome(degree, [list of coeff (degree+1)], variable)"
-						<< std::endl;
-				return std::nan("");
-			} else if (args.back() == 0) {
-				std::cerr << "Variable should not be 0 in 'polynome'" << std::endl;
-			}
-			double res = 0;
-			for (int i = 0; i <= args[0]; ++i) {
-				res += args[i + 1] * pow(args.back(), i);
-			}
-			return res;
-		}
-
-		default :
-			return std::nan("");
-	}
-
-}
-
-double Program::evaluateExpression(std::string &s) const {
+Func Program::evaluateExpression(std::string &s) const {
 	std::string::const_iterator it = s.begin();
 	std::string var;
 	std::string buf;
@@ -138,37 +61,70 @@ double Program::evaluateExpression(std::string &s) const {
 			++it;
 		}
 		if (!var.empty()) {
-			Function func;
-			if ((func = Utils::getFunc(var)) != UNDEFINED) {
+			if (isFunc(var)) {
 				//reading the function args
 				if (it != s.end() && Utils::isLeftParenthesis(*it)) {
 					//omitting the first '('
 					++it;
 					std::vector<double> args;
 					std::string argbuf;
-					unsigned parCount = 1;
+					unsigned parenthesisCount = 1;
+					unsigned partialCount = 1;
 
 					//until the end of the args
-					while (it != s.end() && parCount != 0) {
+					while (it != s.end() && parenthesisCount != 0) {
 						if (Utils::isRightParenthesis(*it)) {
 							//omitting the last ')'
-							if (--parCount != 0) {
+							if (--parenthesisCount != 0) {
 								argbuf += *it;
 							}
 						} else if (Utils::isLeftParenthesis(*it)) {
-							++parCount;
+							++parenthesisCount;
 							argbuf += *it;
 						} else if (*it != ',') {
 							argbuf += *it;
 						} else if (!argbuf.empty()) {
 							//if not in a nested func usage ( pow(1,pow(2,3)) )
-							if (parCount <= 1) {
-								double res = evaluateExpression(argbuf);
-								if (std::isnan(res)) {
-									std::cerr << "Expression : '" << argbuf << "' is invalid" << std::endl;
-									return std::nan("");
+							if (parenthesisCount <= 1) {
+								//placeholder or expression ?
+								bool isPlaceholder = false;
+								auto it_argbuf = argbuf.begin();
+								while(it_argbuf != argbuf.end() && std::isspace(*it_argbuf)) {it_argbuf++;}
+								if(it_argbuf != argbuf.end()) {
+									if (*it_argbuf == '_') {
+										if(it_argbuf+1 != argbuf.end() && *(it_argbuf+1) != ' ') {
+											std::string number;
+											++it_argbuf;
+											while(it_argbuf != argbuf.end()) {
+												if(!std::isspace(*it_argbuf))
+													number += *it_argbuf;
+												it_argbuf++;
+											}
+											if(number == std::to_string(partialCount)) {
+													isPlaceholder = true;
+													partialCount++;
+											} else {
+													std::cerr << "Wrong number in placeholder, should be " << partialCount << std::endl;
+													return nullptr;
+											}
+										} else {
+											std::cerr << "Invalid expression '_', this needs a number [0-9] to be a placeholder" << std::endl;
+											return nullptr;
+										}
+
+									}
 								}
-								args.push_back(res);
+								if(isPlaceholder) {
+									args.push_back(std::nan(""));
+								} else {
+									Func resFunc = evaluateExpression(argbuf);
+									if (resFunc == nullptr || !resFunc->isComplete()) {
+										std::cerr << "Expression : '" << argbuf << "' is invalid (used in '" << var
+												  << "')" << std::endl;
+										return nullptr;
+									}
+									args.push_back(resFunc->eval());
+								}
 								argbuf = "";
 							} else {
 								argbuf += *it;
@@ -178,36 +134,117 @@ double Program::evaluateExpression(std::string &s) const {
 					}
 
 					if (!argbuf.empty()) {
-						double res = evaluateExpression(argbuf);
-						if (std::isnan(res)) {
-							std::cerr << "Expression : '" << argbuf << "' is invalid" << std::endl;
-							return std::nan("");
+						//placeholder or expression ?
+						bool isPlaceholder = false;
+						auto it_argbuf = argbuf.begin();
+						while(it_argbuf != argbuf.end() && std::isspace(*it_argbuf)) {it_argbuf++;}
+						if(it_argbuf != argbuf.end()) {
+							if (*it_argbuf == '_') {
+								if(it_argbuf+1 != argbuf.end() && *(it_argbuf+1) != ' ') {
+									std::string number;
+									++it_argbuf;
+									while(it_argbuf != argbuf.end()) {
+										if(!std::isspace(*it_argbuf))
+											number += *it_argbuf;
+										it_argbuf++;
+									}
+									if(number == std::to_string(partialCount)) {
+										isPlaceholder = true;
+									} else {
+										std::cerr << "Wrong number in placeholder, should be " << partialCount << std::endl;
+										return nullptr;
+									}
+								} else {
+									std::cerr << "Invalid expression '_', this needs a number [0-9] to be a placeholder" << std::endl;
+									return nullptr;
+								}
+
+							}
 						}
-						args.push_back(res);
+						if(isPlaceholder) {
+							args.push_back(std::nan(""));
+						} else {
+							Func resFunc = evaluateExpression(argbuf);
+							if (resFunc == nullptr || !resFunc->isComplete()) {
+								std::cerr << "Expression : '" << argbuf << "' is invalid (used in '" << var
+										  << "')" << std::endl;
+								return nullptr;
+							}
+							args.push_back(resFunc->eval());
+						}
 					}
 
-					if (parCount != 0) {
+					if (parenthesisCount != 0) {
 						std::cerr << "Misuse (parenthesis missing) of function identifier : '" << var << "'"
 								  << std::endl;
-						return std::nan("");
+						return nullptr;
 					}
 
-					double res = execFunction(func, args);
+					Func resFunc = functionMap.at(var)->addArgs(args);
 
-					if (!std::isnan(res)) {
-						buf += std::to_string(res);
+					if (resFunc != nullptr) {
+						if(resFunc->isComplete()) {
+							buf += std::to_string(resFunc->eval());
+
+						//if the function is partial, return the new func
+						} else {
+							//checking if the partial function is the only thing in the expression
+							bool simpleUse = true;
+							//nothing but spaces before
+							for(char c : buf) {
+								if(!std::isspace(c)) {
+									simpleUse = false;
+								}
+							}
+							//nothing but spaces and ';' after
+							while (it != s.end()) {
+								if(!std::isspace(*it) && *it != ';') {
+									simpleUse = false;
+								}
+								it++;
+							}
+							if (simpleUse) {
+								return resFunc;
+							} else {
+								std::cerr << "Invalid use of partial definition in complex expression '" << var << "'"
+										  << std::endl;
+								return nullptr;
+							}
+						}
 					} else {
-						return res;
+						return nullptr;
 					}
-				} else {
-					std::cerr << "Misuse (no args) of function identifier : '" << var << "'" << std::endl;
-					return std::nan("");
+				} else if (functionMap.find(var) != functionMap.end()) {
+					if(functionMap.at(var)->isComplete()) {
+						buf += std::to_string(functionMap.at(var)->eval());
+					} else {
+						//checking if the partial function is the only thing in the expression
+						bool simpleUse = true;
+						//nothing but spaces before
+						for(char c : buf) {
+							if(!std::isspace(c)) {
+								simpleUse = false;
+							}
+						}
+						//nothing but spaces and ';' after
+						while (it != s.end()) {
+							if(!std::isspace(*it) && *it != ';') {
+								simpleUse = false;
+							}
+							it++;
+						}
+						if (simpleUse) {
+							return functionMap.at(var)->addArgs({});
+						} else {
+							std::cerr << "Invalid use of partial definition in complex expression '" << var << "'"
+									  << std::endl;
+							return nullptr;
+						}
+					}
 				}
-			} else if (variableMap.find(var) != variableMap.end()) {
-				buf += std::to_string(variableMap.at(var));
 			} else {
 				std::cerr << "Unknown identifier in expression : '" << var << "'" << std::endl;
-				return std::nan("");
+				return nullptr;
 			}
 		}
 		var = "";
@@ -219,7 +256,7 @@ double Program::evaluateExpression(std::string &s) const {
 	}
 
 	Expr e{buf};
-	return e.eval();
+	return std::make_unique<Id>(std::vector {e.eval()});
 }
 
 std::string Program::extractVariableName(std::string &s) const {
@@ -252,7 +289,7 @@ std::string Program::extractVariableName(std::string &s) const {
 void Program::exec() {
 	std::string s;
 	while (std::getline(_in, s) && s != "q" && s != "quit" && s != "exit") {
-		s  = s.substr(0,s.find('#'));
+		s  = s.substr(0,s.find('#')); //handling python-style comments
 		if (!s.empty()) {
 			if (s[s.find_last_not_of(" \t\r")] == ';') {
 				unsigned splitInd = s.find('=');
@@ -264,9 +301,13 @@ void Program::exec() {
 				if (s.find('=') != -1) {
 					std::cerr << "Invalid assignation instruction, maybe you forgot ';'" << std::endl;
 				} else {
-					double res = evaluateExpression(s);
-					if (!std::isnan(res)) {
-						std::cout << res << std::endl;
+					Func resFunc = evaluateExpression(s);
+					if (resFunc != nullptr) {
+						if(resFunc->isComplete()) {
+							std::cout << resFunc->eval() << std::endl;
+						} else {
+							std::cout << "partial function : " << resFunc->repr() << std::endl;
+						}
 					}
 				}
 			}

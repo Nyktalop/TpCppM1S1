@@ -3,22 +3,13 @@
 
 #include <string>
 
-enum Function{
-	SIN,
-	COS,
-	TAN,
-	SQRT,
-	LOG,
-	EXP,
-	POW,
-	HYP,
-	LERP,
-	POLY,
-	UNDEFINED
-};
-
-
 namespace Utils {
+	static inline bool isBaseFunc(const std::string& s) {
+		return s == "sin" || s == "cos" || s == "tan" || s == "log"
+			|| s == "exp" || s == "sqrt"|| s == "pow" || s == "hyp"
+			|| s == "lerp"|| s == "ident" ||s == "polynome";
+	}
+
 	static inline bool isOp(const std::string &s) {
 
 		return s.length() == 1 && (s == "+" ||
@@ -63,32 +54,6 @@ namespace Utils {
 		return !std::isdigit(c) && !std::isspace(c) && c != ';'
 			   && c != '+' && c != '-' && c != '*' && c != '/'
 			   && c != '(' && c != ')' && c != '.' && c != '=';
-	}
-
-	static Function getFunc(std::string &s) {
-		if (s == "sin") {
-			return SIN;
-		} else if (s == "cos") {
-			return COS;
-		} else if (s == "tan") {
-			return TAN;
-		} else if (s == "sqrt") {
-			return SQRT;
-		} else if (s == "log") {
-			return LOG;
-		} else if (s == "exp") {
-			return EXP;
-		} else if (s == "pow") {
-			return POW;
-		} else if (s == "hypot") {
-			return HYP;
-		} else if (s == "lerp") {
-			return LERP;
-		} else if (s == "polynome") {
-			return POLY;
-		}
-
-		return UNDEFINED;
 	}
 };
 
