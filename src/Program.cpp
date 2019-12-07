@@ -257,7 +257,7 @@ Func Program::evaluateExpression(std::string &s) const {
 	}
 
 	Expr e{buf};
-	return std::make_unique<Id>(std::vector {e.eval()});
+	return std::make_unique<Id>(std::vector<double> {e.eval()});
 }
 
 std::string Program::extractVariableName(std::string &s) const {
