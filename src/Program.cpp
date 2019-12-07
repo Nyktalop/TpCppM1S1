@@ -292,15 +292,15 @@ void Program::exec() {
 	while (std::getline(_in, s) && s != "q" && s != "quit" && s != "exit") {
 		s  = s.substr(0,s.find('#')); //handling python-style comments
 		if (!s.empty()) {
+			unsigned splitInd = s.find('=');
 			if (s[s.find_last_not_of(" \t\r")] == ';') {
-				unsigned splitInd = s.find('=');
 				if (splitInd != -1) {
 					handleAssignation(s, splitInd);
 				}
 
 			} else {
-				if (s.find('=') != -1) {
-					std::cerr << "Invalid assignation instruction, maybe you forgot ';'" << std::endl;
+				if (splitInd != -1) {
+					handleAssignation(s, splitInd);
 				} else {
 					Func resFunc = evaluateExpression(s);
 					if (resFunc != nullptr) {
