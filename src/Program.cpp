@@ -37,7 +37,7 @@ bool Program::handleAssignation(std::string &s, unsigned splitInd) {
 
 	if (result != nullptr && !name.empty()) {
 		if(result->isComplete()) {
-			functionMap[name] = std::make_unique<Id>(std::vector{result->eval()});
+			functionMap[name] = std::make_unique<Id>(std::vector<double>{result->eval()});
 			std::cout << "result : " << result->eval() << " saved under the name '" << name << "'" << std::endl;
 		}
 		else {
