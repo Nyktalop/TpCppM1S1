@@ -66,6 +66,10 @@ std::unique_ptr<Function> Log::addArgs(std::vector<double> newArgs){
 			it_new++;
 		}
 
+		if(!vec.empty() && !std::isnan(vec[0]) && vec[0] <= 0) {
+			std::cerr << "Argument of 'log' shouldn't be negative or null" << std::endl;
+			return nullptr;
+		}
 		return std::make_unique<Log>(vec);
 	}
 
@@ -220,6 +224,10 @@ std::unique_ptr<Function> Sqrt::addArgs(std::vector<double> newArgs){
 			it_new++;
 		}
 
+		if(!vec.empty() && !std::isnan(vec[0]) && vec[0] <= 0) {
+			std::cerr << "Argument of 'sqrt' shouldn't be negative" << std::endl;
+			return nullptr;
+		}
 		return std::make_unique<Sqrt>(vec);
 	}
 
